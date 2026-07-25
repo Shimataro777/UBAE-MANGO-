@@ -1,2 +1,0 @@
-# UBAE-MANGO-
-game

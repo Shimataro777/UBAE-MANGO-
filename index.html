@@ -42,7 +42,8 @@
         }
         .game-header {
             border-top: none;
-            justify-content: flex-start;
+            justify-content: flex-end; /* 右側に配置 */
+            transform: rotate(180deg); /* 180度回転 */
         }
         .game-footer {
             border-bottom: none;
@@ -196,7 +197,7 @@
             transform: translate(-50%, -50%);
             width: 80px;
             height: 80px;
-            background: transparent; /* ←ここを透明に変更しました */
+            background: transparent;
             border: none;
             border-radius: 0px;
             display: flex;
@@ -768,34 +769,37 @@
 
         function getVegetableSvg(type) {
             switch(type) {
-                case 'satsumaimo':
+                case 'mango':
                     return `<svg viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
-                        <rect x="12" y="6" width="8" height="2" fill="#2d5a27"/>
-                        <rect x="14" y="4" width="4" height="2" fill="#2d5a27"/>
+                        <!-- へた・軸 -->
+                        <rect x="14" y="5" width="4" height="3" fill="#3b220b"/>
+                        <rect x="16" y="4" width="2" height="2" fill="#2e7d32"/>
                         
-                        <rect x="10" y="8" width="12" height="2" fill="#f1c40f"/>
-                        <rect x="8" y="10" width="16" height="4" fill="#f1c40f"/>
-                        <rect x="6" y="14" width="20" height="12" fill="#f39c12"/>
-                        <rect x="8" y="26" width="16" height="2" fill="#e67e22"/>
-                        <rect x="10" y="28" width="12" height="2" fill="#d35400"/>
-                        
-                        <rect x="8" y="14" width="6" height="6" fill="#f7dc6f"/>
-                        <rect x="10" y="18" width="8" height="4" fill="#f5b041"/>
+                        <!-- 縦を縮めて丸みを強調したマンゴー本体 -->
+                        <rect x="12" y="8" width="8" height="2" fill="#e53935"/>
+                        <rect x="10" y="10" width="12" height="3" fill="#e53935"/>
+                        <rect x="8" y="13" width="16" height="4" fill="#e53935"/>
+                        <rect x="8" y="17" width="16" height="4" fill="#ff9800"/>
+                        <rect x="9" y="21" width="14" height="3" fill="#ff9800"/>
+                        <rect x="11" y="24" width="10" height="2" fill="#9ccc65"/>
+
+                        <!-- ハイライト -->
+                        <rect x="11" y="14" width="3" height="3" fill="#ffa726"/>
                     </svg>`;
-                case 'jagaimo':
+                case 'apple':
                     return `<svg viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
-                        <rect x="14" y="3" width="4" height="3" fill="#5d4037"/>
-                        <rect x="17" y="2" width="4" height="3" fill="#8bc34a"/>
+                        <rect x="15" y="6" width="2" height="2" fill="#5d4037"/>
+                        <rect x="17" y="5" width="3" height="2" fill="#8bc34a"/>
                         
-                        <rect x="8" y="6" width="16" height="1" fill="#b71c1c"/>
-                        <rect x="6" y="7" width="20" height="3" fill="#c62828"/>
-                        <rect x="5" y="10" width="22" height="11" fill="#d32f2f"/>
-                        <rect x="6" y="21" width="20" height="3" fill="#c62828"/>
-                        <rect x="8" y="24" width="16" height="1" fill="#b71c1c"/>
+                        <rect x="10" y="8" width="12" height="1" fill="#b71c1c"/>
+                        <rect x="9" y="9" width="14" height="2" fill="#c62828"/>
+                        <rect x="8" y="11" width="16" height="10" fill="#d32f2f"/>
+                        <rect x="9" y="21" width="14" height="2" fill="#c62828"/>
+                        <rect x="10" y="23" width="12" height="1" fill="#b71c1c"/>
                         
-                        <rect x="10" y="12" width="6" height="4" fill="#ef5350"/>
-                        <rect x="11" y="13" width="3" height="2" fill="#ffffff"/>
-                        <rect x="19" y="14" width="2" height="2" fill="#ffcdd2"/>
+                        <rect x="11" y="13" width="5" height="3" fill="#ef5350"/>
+                        <rect x="12" y="14" width="2" height="2" fill="#ffffff"/>
+                        <rect x="18" y="15" width="2" height="1" fill="#ffcdd2"/>
                     </svg>`;
                 case 'tamanegi':
                     return `<svg viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
@@ -1015,7 +1019,7 @@
                 if (gameState !== 'WAITING') return;
 
                 if (remainingFeints > 0) {
-                    const feintTypes = ['jagaimo', 'tamanegi'];
+                    const feintTypes = ['apple', 'tamanegi'];
                     const selectedFeintVeg = feintTypes[Math.floor(Math.random() * feintTypes.length)];
 
                     setCenterObject(selectedFeintVeg);
@@ -1037,17 +1041,17 @@
                 } else {
                     const realTime = Math.random() * 800 + 700;
                     timeoutIds.push(setTimeout(() => {
-                        triggerSatsumaimo();
+                        triggerMango();
                     }, realTime));
                 }
 
             }, nextDelay));
         }
 
-        function triggerSatsumaimo() {
+        function triggerMango() {
             if (gameState !== 'WAITING') return;
             gameState = 'READY';
-            setCenterObject('satsumaimo');
+            setCenterObject('mango');
             startTime = performance.now();
         }
 
@@ -1220,7 +1224,7 @@
                 p1Avatar.classList.remove('waiting-anim');
                 p2Avatar.classList.remove('waiting-anim');
 
-                p1Status.textContent = '';
+                p1Status.textContent = 'ネクスト';
                 p2Status.textContent = '';
                 playVictorySound();
                 

@@ -25,6 +25,30 @@
             touch-action: manipulation;
         }
 
+        .game-header, .game-footer {
+            height: 48px;
+            background: #b89775;
+            border-top: 3px solid #8c6747;
+            border-bottom: 3px solid #8c6747;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 30;
+            flex-shrink: 0;
+            font-size: 12px;
+            color: #5c3a21;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        .game-header {
+            border-top: none;
+            justify-content: flex-start;
+        }
+        .game-footer {
+            border-bottom: none;
+            justify-content: flex-end;
+        }
+
         .player-side {
             flex: 1;
             display: flex;
@@ -46,33 +70,9 @@
             border-bottom: none;
         }
 
-        /* プレイヤー識別用のラベル（元の色に戻す） */
-        #top-player .player-label {
-            position: absolute;
-            bottom: 46px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 11px;
-            color: #8c6747;
-            font-weight: bold;
-            opacity: 0.9;
-            letter-spacing: 0.5px;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
+        #top-player .player-label,
         #bottom-player .player-label {
-            position: absolute;
-            bottom: 46px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 11px;
-            color: #8c6747;
-            font-weight: bold;
-            opacity: 0.9;
-            letter-spacing: 0.5px;
-            pointer-events: none;
-            white-space: nowrap;
+            display: none;
         }
 
         @keyframes hit-recoil {
@@ -109,16 +109,16 @@
             justify-content: center;
             margin: auto 0;
             z-index: 5;
-            transform: translateY(50px);
+            transform: translateY(20px);
         }
 
         #top-player .arena {
-            transform: translateY(50px);
+            transform: translateY(20px);
         }
 
         .marmot-container {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             margin-bottom: 2px;
             transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             filter: drop-shadow(0 3px 5px rgba(0,0,0,0.25));
@@ -173,19 +173,19 @@
 
         .status-text {
             font-family: 'DotGothic16', monospace;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
             color: #5c3a21;
-            height: 22px;
+            height: 20px;
             text-align: center;
             letter-spacing: 0.5px;
             margin-top: 2px;
         }
 
         .result-detail {
-            font-size: 14px;
+            font-size: 13px;
             color: #8C6747;
-            height: 25px;
+            height: 22px;
             font-weight: bold;
         }
 
@@ -196,17 +196,14 @@
             transform: translate(-50%, -50%);
             width: 80px;
             height: 80px;
-            background: #858585;
-            border-top: 6px solid #b8b8b8;
-            border-left: 6px solid #b8b8b8;
-            border-right: 6px solid #4a4a4a;
-            border-bottom: 6px solid #4a4a4a;
+            background: transparent; /* ←ここを透明に変更しました */
+            border: none;
             border-radius: 0px;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 20;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: none;
             image-rendering: pixelated;
         }
 
@@ -288,7 +285,7 @@
             cursor: pointer;
             box-shadow: 0 3px 6px rgba(0,0,0,0.25);
             transition: all 0.1s;
-            height: 44px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -330,6 +327,13 @@
             pointer-events: none;
         }
 
+        #start-overlay.orient-p1 .overlay-card {
+            transform: rotate(0deg);
+        }
+        #start-overlay.orient-p2 .overlay-card {
+            transform: rotate(180deg);
+        }
+
         .overlay-card {
             background: #f4ebd0;
             border: 3px solid #a67c52;
@@ -338,6 +342,7 @@
             text-align: center;
             color: #2c221e;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: transform 0.2s ease;
         }
 
         .overlay-card h2 {
@@ -419,7 +424,7 @@
 </head>
 <body>
 
-    <div id="start-overlay">
+    <div id="start-overlay" class="orient-p1">
         <div class="overlay-card">
             <h2 id="overlay-title">奪え！マンゴー！</h2>
             <div id="overlay-sub" class="overlay-sub"></div>
@@ -427,23 +432,19 @@
         </div>
     </div>
 
-    <!-- 画面中央の共有ステージ -->
+    <header class="game-header">マーモット2</header>
+
     <div id="global-center-stage"></div>
 
-    <!-- 上側マーモット (P2) -->
     <div id="top-player" class="player-side" data-player="2">
         <div class="player-label">マーモット 2</div>
         <div class="flash-overlay" id="p2-flash"></div>
 
         <div class="arena">
             <div class="marmot-container" id="p2-avatar">
-                <!-- フレーム1: 通常ポーズ -->
                 <svg class="marmot-svg svg-frame-1" viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
-                    <!-- 小さめで中心寄りの耳 -->
                     <rect x="13" y="4" width="2" height="2" fill="#8f6b3e"/>
                     <rect x="17" y="4" width="2" height="2" fill="#8f6b3e"/>
-                    
-                    <!-- 頭部・顔の輪郭と模様 -->
                     <rect x="10" y="5" width="12" height="7" fill="#bfa172"/>
                     <rect x="9" y="7" width="14" height="5" fill="#cbb187"/>
                     <rect x="10" y="6" width="3" height="3" fill="#8f6b3e"/>
@@ -453,15 +454,10 @@
                     <rect x="15" y="7" width="2" height="2" fill="#111111"/>
                     <rect x="10" y="7" width="2" height="1" fill="#666666"/>
                     <rect x="18" y="7" width="2" height="1" fill="#666666"/>
-                    
-                    <!-- 顔のパーツ -->
                     <rect x="13" y="10" width="6" height="2" fill="#221105"/>
                     <rect x="14" y="11" width="4" height="2" fill="#111111"/>
-                    <!-- ちょこんと見える前歯 -->
                     <rect x="15" y="13" width="2" height="2" fill="#ffffff"/>
                     <rect x="15" y="13" width="1" height="2" fill="#d0d0d0"/>
-                    
-                    <!-- 胴体（頭部と完全に密着、焦げ茶色の境界線なし） -->
                     <rect x="8" y="12" width="16" height="15" fill="#c49a5b"/>
                     <rect x="7" y="16" width="18" height="10" fill="#d9ad6f"/>
                     <rect x="10" y="15" width="12" height="8" fill="#ecd094"/>
@@ -473,13 +469,9 @@
                     <rect x="19" y="25" width="1" height="1" fill="#111111"/>
                     <rect x="21" y="25" width="1" height="1" fill="#111111"/>
                 </svg>
-                <!-- フレーム2: アニメーション用ポーズ (新しいクラウチSVG) -->
                 <svg class="marmot-svg svg-frame-2" viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
-                    <!-- 小さめで中心寄りの耳 (頭部と一緒に下に移動) -->
                     <rect x="13" y="5" width="2" height="2" fill="#8f6b3e"/>
                     <rect x="17" y="5" width="2" height="2" fill="#8f6b3e"/>
-                    
-                    <!-- 頭部・顔の輪郭と模様 (全体的に下に移動、胴体に被せる) -->
                     <rect x="10" y="6" width="12" height="7" fill="#bfa172"/>
                     <rect x="9" y="8" width="14" height="5" fill="#cbb187"/>
                     <rect x="10" y="7" width="3" height="3" fill="#8f6b3e"/>
@@ -489,25 +481,16 @@
                     <rect x="15" y="8" width="2" height="2" fill="#111111"/>
                     <rect x="10" y="8" width="2" height="1" fill="#666666"/>
                     <rect x="18" y="8" width="2" height="1" fill="#666666"/>
-                    
-                    <!-- 顔のパーツ (下に移動) -->
                     <rect x="13" y="11" width="6" height="2" fill="#221105"/>
                     <rect x="14" y="12" width="4" height="2" fill="#111111"/>
-                    <!-- ちょこんと見える前歯 (下に移動) -->
                     <rect x="15" y="14" width="2" height="2" fill="#ffffff"/>
                     <rect x="15" y="14" width="1" height="2" fill="#d0d0d0"/>
-                    
-                    <!-- 胴体 (頭部と密着したまま、全体的に上方向に圧縮) -->
                     <rect x="8" y="13" width="16" height="14" fill="#c49a5b"/>
                     <rect x="7" y="16" width="18" height="9" fill="#d9ad6f"/>
                     <rect x="10" y="15" width="12" height="7" fill="#ecd094"/>
                     <rect x="11" y="17" width="10" height="4" fill="#f7e1ad"/>
-                    
-                    <!-- 足元（胴体の下部に密着） -->
                     <rect x="10" y="18" width="4" height="5" fill="#7a522e"/>
                     <rect x="18" y="18" width="4" height="5" fill="#7a522e"/>
-                    
-                    <!-- 爪 (一番下に配置) -->
                     <rect x="10" y="23" width="1" height="1" fill="#111111"/>
                     <rect x="12" y="23" width="1" height="1" fill="#111111"/>
                     <rect x="19" y="23" width="1" height="1" fill="#111111"/>
@@ -532,20 +515,15 @@
         </div>
     </div>
 
-    <!-- 下側マーモット (P1) -->
     <div id="bottom-player" class="player-side" data-player="1">
         <div class="player-label">マーモット 1</div>
         <div class="flash-overlay" id="p1-flash"></div>
 
         <div class="arena">
             <div class="marmot-container" id="p1-avatar">
-                <!-- フレーム1: 通常ポーズ -->
                 <svg class="marmot-svg svg-frame-1" viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
-                    <!-- 小さめで中心寄りの耳 -->
                     <rect x="13" y="4" width="2" height="2" fill="#8f6b3e"/>
                     <rect x="17" y="4" width="2" height="2" fill="#8f6b3e"/>
-                    
-                    <!-- 頭部・顔の輪郭と模様 -->
                     <rect x="10" y="5" width="12" height="7" fill="#bfa172"/>
                     <rect x="9" y="7" width="14" height="5" fill="#cbb187"/>
                     <rect x="10" y="6" width="3" height="3" fill="#8f6b3e"/>
@@ -555,15 +533,10 @@
                     <rect x="15" y="7" width="2" height="2" fill="#111111"/>
                     <rect x="10" y="7" width="2" height="1" fill="#666666"/>
                     <rect x="18" y="7" width="2" height="1" fill="#666666"/>
-                    
-                    <!-- 顔のパーツ -->
                     <rect x="13" y="10" width="6" height="2" fill="#221105"/>
                     <rect x="14" y="11" width="4" height="2" fill="#111111"/>
-                    <!-- ちょこんと見える前歯 -->
                     <rect x="15" y="13" width="2" height="2" fill="#ffffff"/>
                     <rect x="15" y="13" width="1" height="2" fill="#d0d0d0"/>
-                    
-                    <!-- 胴体（頭部と完全に密着、焦げ茶色の境界線なし） -->
                     <rect x="8" y="12" width="16" height="15" fill="#c49a5b"/>
                     <rect x="7" y="16" width="18" height="10" fill="#d9ad6f"/>
                     <rect x="10" y="15" width="12" height="8" fill="#ecd094"/>
@@ -575,13 +548,9 @@
                     <rect x="19" y="25" width="1" height="1" fill="#111111"/>
                     <rect x="21" y="25" width="1" height="1" fill="#111111"/>
                 </svg>
-                <!-- フレーム2: アニメーション用ポーズ (新しいクラウチSVG) -->
                 <svg class="marmot-svg svg-frame-2" viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
-                    <!-- 小さめで中心寄りの耳 (頭部と一緒に下に移動) -->
                     <rect x="13" y="5" width="2" height="2" fill="#8f6b3e"/>
                     <rect x="17" y="5" width="2" height="2" fill="#8f6b3e"/>
-                    
-                    <!-- 頭部・顔の輪郭と模様 (全体的に下に移動、胴体に被せる) -->
                     <rect x="10" y="6" width="12" height="7" fill="#bfa172"/>
                     <rect x="9" y="8" width="14" height="5" fill="#cbb187"/>
                     <rect x="10" y="7" width="3" height="3" fill="#8f6b3e"/>
@@ -591,25 +560,16 @@
                     <rect x="15" y="8" width="2" height="2" fill="#111111"/>
                     <rect x="10" y="8" width="2" height="1" fill="#666666"/>
                     <rect x="18" y="8" width="2" height="1" fill="#666666"/>
-                    
-                    <!-- 顔のパーツ (下に移動) -->
                     <rect x="13" y="11" width="6" height="2" fill="#221105"/>
                     <rect x="14" y="12" width="4" height="2" fill="#111111"/>
-                    <!-- ちょこんと見える前歯 (下に移動) -->
                     <rect x="15" y="14" width="2" height="2" fill="#ffffff"/>
                     <rect x="15" y="14" width="1" height="2" fill="#d0d0d0"/>
-                    
-                    <!-- 胴体 (頭部と密着したまま、全体的に上方向に圧縮) -->
                     <rect x="8" y="13" width="16" height="14" fill="#c49a5b"/>
                     <rect x="7" y="16" width="18" height="9" fill="#d9ad6f"/>
                     <rect x="10" y="15" width="12" height="7" fill="#ecd094"/>
                     <rect x="11" y="17" width="10" height="4" fill="#f7e1ad"/>
-                    
-                    <!-- 足元（胴体の下部に密着） -->
                     <rect x="10" y="18" width="4" height="5" fill="#7a522e"/>
                     <rect x="18" y="18" width="4" height="5" fill="#7a522e"/>
-                    
-                    <!-- 爪 (一番下に配置) -->
                     <rect x="10" y="23" width="1" height="1" fill="#111111"/>
                     <rect x="12" y="23" width="1" height="1" fill="#111111"/>
                     <rect x="19" y="23" width="1" height="1" fill="#111111"/>
@@ -634,11 +594,13 @@
         </div>
     </div>
 
+    <footer class="game-footer">マーモット1</footer>
+
     <div id="modal" onclick="toggleModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3>奪え！マンゴー！</h3>
             <p style="font-size: 13px; text-align: left; line-height: 1.6; color: #4a3324;">
-                現れては消える、極上の果実「マンゴー」。マーモットどもが息を潜めて待ち構える中、岩陰から顔を出すのは甘い果実か、それとも罠か―― 一瞬の隙も許されない、最速の勝負が始まる。<br><br>
+                現れては消える、極上の果実「マンゴー」。マーモットどもが息を潜めて待ち構える中、荒野に姿を現すのは甘い果実か、それとも罠か―― 一瞬の隙も許されない、最速の勝負が始まる。<br><br>
                 1. マンゴーが現れたら素早くタップ！相手より先に手に入れろ！<br>
                 2. あせりは禁物！手に入れたマンゴーを落としちまう！<br>
                 4. タマネギだけは絶対に避けろ！オレとの約束だ。
@@ -822,15 +784,18 @@
                     </svg>`;
                 case 'jagaimo':
                     return `<svg viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
-                        <rect x="10" y="6" width="12" height="2" fill="#a07833"/>
-                        <rect x="8" y="8" width="16" height="4" fill="#c49a5b"/>
-                        <rect x="6" y="12" width="20" height="8" fill="#d9ad6f"/>
-                        <rect x="8" y="20" width="16" height="4" fill="#b88c4a"/>
-                        <rect x="10" y="24" width="12" height="2" fill="#8f692e"/>
+                        <rect x="14" y="3" width="4" height="3" fill="#5d4037"/>
+                        <rect x="17" y="2" width="4" height="3" fill="#8bc34a"/>
                         
-                        <rect x="11" y="10" width="3" height="3" fill="#6e4f1b"/>
-                        <rect x="19" y="15" width="3" height="3" fill="#6e4f1b"/>
-                        <rect x="14" y="18" width="2" height="2" fill="#6e4f1b"/>
+                        <rect x="8" y="6" width="16" height="1" fill="#b71c1c"/>
+                        <rect x="6" y="7" width="20" height="3" fill="#c62828"/>
+                        <rect x="5" y="10" width="22" height="11" fill="#d32f2f"/>
+                        <rect x="6" y="21" width="20" height="3" fill="#c62828"/>
+                        <rect x="8" y="24" width="16" height="1" fill="#b71c1c"/>
+                        
+                        <rect x="10" y="12" width="6" height="4" fill="#ef5350"/>
+                        <rect x="11" y="13" width="3" height="2" fill="#ffffff"/>
+                        <rect x="19" y="14" width="2" height="2" fill="#ffcdd2"/>
                     </svg>`;
                 case 'tamanegi':
                     return `<svg viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
@@ -941,9 +906,11 @@
             globalCenterStage.innerHTML = '';
         }
 
-        function openStartOverlay() {
+        function openStartOverlay(targetPlayer = 1) {
             clearAllTimeouts();
             gameState = 'IDLE';
+            startOverlay.classList.remove('orient-p1', 'orient-p2');
+            startOverlay.classList.add(targetPlayer === 2 ? 'orient-p2' : 'orient-p1');
             overlayTitle.textContent = '奪え！マンゴー！';
             overlaySub.textContent = '';
             overlayBtn.textContent = 'ゲームスタート';
@@ -1113,7 +1080,8 @@
                         p2Status.textContent = '';
                         p1Detail.textContent = 'うぐっ…';
                         p2Detail.textContent = 'なんてこった...';
-                        triggerGameOver(2, deathMessages[veg], 1);
+                        
+                        triggerGameOver(2, deathMessages[veg], 1, playerNum);
                     } else {
                         p2Tapped = true;
                         p2Avatar.classList.add('dead');
@@ -1122,7 +1090,8 @@
                         p1Status.textContent = '';
                         p2Detail.textContent = 'うぐっ…';
                         p1Detail.textContent = 'なんこった...';
-                        triggerGameOver(1, deathMessages[veg], 2);
+                        
+                        triggerGameOver(1, deathMessages[veg], 2, playerNum);
                     }
                     return;
                 } else {
@@ -1219,7 +1188,7 @@
             checkMatchEnd();
         }
 
-        function triggerGameOver(winnerNum, messageText, loserNum) {
+        function triggerGameOver(winnerNum, messageText, loserNum, orientPlayer = null) {
             gameState = 'MATCH_OVER';
             p1Avatar.classList.remove('waiting-anim');
             p2Avatar.classList.remove('waiting-anim');
@@ -1228,6 +1197,10 @@
             p2Status.textContent = '';
             playSadDefeatSound();
             
+            const targetOrient = orientPlayer !== null ? orientPlayer : winnerNum;
+            startOverlay.classList.remove('orient-p1', 'orient-p2');
+            startOverlay.classList.add(targetOrient === 2 ? 'orient-p2' : 'orient-p1');
+
             overlayTitle.textContent = messageText;
             if (loserNum) {
                 overlaySub.textContent = `マーモット${loserNum}の敗北`;
@@ -1251,6 +1224,11 @@
                 p2Status.textContent = '';
                 playVictorySound();
                 
+                const winnerNum = p1Wins > p2Wins ? 1 : 2;
+                
+                startOverlay.classList.remove('orient-p1', 'orient-p2');
+                startOverlay.classList.add(winnerNum === 2 ? 'orient-p2' : 'orient-p1');
+
                 overlayTitle.textContent = p1Wins > p2Wins ? 'マーモット1の勝利！' : 'マーモット2の勝利！';
                 overlaySub.textContent = '';
                 overlayBtn.textContent = 'もう一度プレイ';

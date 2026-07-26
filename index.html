@@ -988,12 +988,12 @@
             if (gameState === 'IDLE' || gameState === 'FINISHED') {
                 if (playerNum === 1) {
                     p1Ready = true;
-                    p1Btn.textContent = '準備完了';
+                    p1Btn.textContent = '準備OK';
                     p1Btn.classList.add('ready-state');
                     p1Status.textContent = '相手の準備待ち...';
                 } else {
                     p2Ready = true;
-                    p2Btn.textContent = '準備完了';
+                    p2Btn.textContent = '準備OK';
                     p2Btn.classList.add('ready-state');
                     p2Status.textContent = '相手の準備待ち...';
                 }
@@ -1333,7 +1333,7 @@
             } else {
                 overlaySub.textContent = '';
             }
-            overlayBtn.textContent = 'もう一度プレイ';
+            overlayBtn.textContent = 'もう一度あそぶ';
             
             setTimeout(() => {
                 startOverlay.classList.remove('hidden');
@@ -1357,7 +1357,7 @@
 
                 overlayTitle.textContent = p1Wins > p2Wins ? 'マーモット1の勝利！' : 'マーモット2の勝利！';
                 overlaySub.textContent = '';
-                overlayBtn.textContent = 'もう一度プレイ';
+                overlayBtn.textContent = 'もう一度あそぶ';
                 
                 setTimeout(() => {
                     startOverlay.classList.remove('hidden');

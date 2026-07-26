@@ -604,7 +604,7 @@
                 現れては消える、極上の果実「マンゴー」。マーモットどもが息を潜めて待ち構える中、荒野に姿を現すのは甘い果実か、それとも罠か―― 一瞬の隙も許されない、最速の勝負が始まる。<br><br>
                 1. マンゴーが現れたら素早くタップ！相手より先に手に入れろ！<br>
                 2. あせりは禁物！手に入れたマンゴーを落としちまう！<br>
-                4. タマネギだけは絶対に避けろ！オレとの約束だ。
+                3. タマネギだけは絶対に避けろ！
             </p>
             <button onclick="toggleModal()">閉じる</button>
         </div>
@@ -771,11 +771,9 @@
             switch(type) {
                 case 'mango':
                     return `<svg viewBox="0 0 32 32" width="100%" height="100%" style="shape-rendering: crispEdges;">
-                        <!-- へた・軸 -->
                         <rect x="14" y="5" width="4" height="3" fill="#3b220b"/>
                         <rect x="16" y="4" width="2" height="2" fill="#2e7d32"/>
                         
-                        <!-- 縦を縮めて丸みを強調したマンゴー本体 -->
                         <rect x="12" y="8" width="8" height="2" fill="#e53935"/>
                         <rect x="10" y="10" width="12" height="3" fill="#e53935"/>
                         <rect x="8" y="13" width="16" height="4" fill="#e53935"/>
@@ -783,7 +781,6 @@
                         <rect x="9" y="21" width="14" height="3" fill="#ff9800"/>
                         <rect x="11" y="24" width="10" height="2" fill="#9ccc65"/>
 
-                        <!-- ハイライト -->
                         <rect x="11" y="14" width="3" height="3" fill="#ffa726"/>
                     </svg>`;
                 case 'apple':
@@ -832,6 +829,7 @@
         let p1Time = null;
         let p2Time = null;
         let currentVegetableType = '';
+        let firstTapTimer = null;
 
         const p1Status = document.getElementById('p1-status');
         const p2Status = document.getElementById('p2-status');
@@ -882,6 +880,10 @@
         function clearAllTimeouts() {
             timeoutIds.forEach(id => clearTimeout(id));
             timeoutIds = [];
+            if (firstTapTimer) {
+                clearTimeout(firstTapTimer);
+                firstTapTimer = null;
+            }
         }
 
         function triggerFlash(playerNum) {
@@ -1003,49 +1005,60 @@
             clearAllTimeouts();
             playStartSound();
 
-            const totalWins = p1Wins + p2Wins;
-            let maxFeints = Math.max(1, 4 - Math.floor(totalWins * 0.5));
-            let feintCount = Math.floor(Math.random() * (maxFeints + 1));
-
+            let feintCount = Math.floor(Math.random() * 3);
             runFeintLoop(feintCount);
+        }
+
+        // インターバルを 0.5秒〜2.0秒 (500ms, 1000ms, 1500ms, 2000ms) の均等な確率に変更
+        function getRandomInterval() {
+            const intervals = [500, 1000, 1500, 2000];
+            return intervals[Math.floor(Math.random() * intervals.length)];
         }
 
         function runFeintLoop(remainingFeints) {
             if (gameState !== 'WAITING') return;
 
-            const nextDelay = Math.random() * 500 + 700;
+            const nextDelay = getRandomInterval();
 
-            timeoutIds.push(setTimeout(() => {
+            const timerId = setTimeout(() => {
                 if (gameState !== 'WAITING') return;
 
                 if (remainingFeints > 0) {
-                    const feintTypes = ['apple', 'tamanegi'];
+                    const feintTypes = ['apple', 'apple', 'tamanegi'];
                     const selectedFeintVeg = feintTypes[Math.floor(Math.random() * feintTypes.length)];
 
                     setCenterObject(selectedFeintVeg);
 
-                    const hideTime = Math.random() * 800 + 1200;
-                    timeoutIds.push(setTimeout(() => {
+                    // フェイントの表示維持時間（0.5秒〜1.0秒）
+                    const hideTime = Math.random() * 500 + 500;
+                    const hideTimerId = setTimeout(() => {
                         if (gameState !== 'WAITING') return;
                         
                         clearCenterObject();
 
-                        const pauseTime = Math.random() * 500 + 600;
-                        timeoutIds.push(setTimeout(() => {
+                        // 消えたあとの空白インターバル（0.5〜2.0秒）
+                        const pauseTime = getRandomInterval();
+                        const pauseTimerId = setTimeout(() => {
                             if (gameState !== 'WAITING') return;
                             runFeintLoop(remainingFeints - 1);
-                        }, pauseTime));
+                        }, pauseTime);
+                        timeoutIds.push(pauseTimerId);
 
-                    }, hideTime));
+                    }, hideTime);
+                    timeoutIds.push(hideTimerId);
 
                 } else {
-                    const realTime = Math.random() * 800 + 700;
-                    timeoutIds.push(setTimeout(() => {
+                    // フェイント終了後、最後にマンゴーが出るまでのインターバル（0.5〜2.0秒）
+                    const realTime = getRandomInterval();
+                    const realTimerId = setTimeout(() => {
                         triggerMango();
-                    }, realTime));
+                    }, realTime);
+                    timeoutIds.push(realTimerId);
                 }
 
-            }, nextDelay));
+            }, nextDelay);
+            
+            timeoutIds.push(timerId);
         }
 
         function triggerMango() {
@@ -1083,7 +1096,7 @@
                         p1Status.textContent = '';
                         p2Status.textContent = '';
                         p1Detail.textContent = 'うぐっ…';
-                        p2Detail.textContent = 'なんてこった...';
+                        p2Detail.textContent = 'なんてこったい';
                         
                         triggerGameOver(2, deathMessages[veg], 1, playerNum);
                     } else {
@@ -1093,7 +1106,7 @@
                         p2Status.textContent = '';
                         p1Status.textContent = '';
                         p2Detail.textContent = 'うぐっ…';
-                        p1Detail.textContent = 'なんこった...';
+                        p1Detail.textContent = 'なんこったい';
                         
                         triggerGameOver(1, deathMessages[veg], 2, playerNum);
                     }
@@ -1113,8 +1126,8 @@
                         p2Avatar.classList.add('shoot');
                         p1Status.textContent = '';
                         p2Status.textContent = '';
-                        p1Detail.textContent = '記録: ミス（自点-1）';
-                        p2Detail.textContent = '記録: セーフ';
+                        p1Detail.textContent = 'ミス（🥭-1）';
+                        p2Detail.textContent = 'セーフ';
                         p1Wins = Math.max(0, p1Wins - 1);
                     } else {
                         p2Tapped = true;
@@ -1122,8 +1135,8 @@
                         p1Avatar.classList.add('shoot');
                         p2Status.textContent = '';
                         p1Status.textContent = '';
-                        p2Detail.textContent = '記録: ミス（自点-1）';
-                        p1Detail.textContent = '記録: セーフ';
+                        p2Detail.textContent = 'ミス（🥭-1）';
+                        p1Detail.textContent = 'セーフ';
                         p2Wins = Math.max(0, p2Wins - 1);
                     }
                     updateScoreIcons();
@@ -1146,26 +1159,72 @@
                     p1Tapped = true;
                     p1Time = tapDuration;
                     p1Avatar.classList.add('shoot');
-                    p1Detail.textContent = `反応時間: ${p1Time.toFixed(3)} s`;
+                    p1Detail.textContent = `タイム: ${p1Time.toFixed(3)} 秒`;
                     p1Status.textContent = '';
                 } else if (playerNum === 2 && !p2Tapped) {
                     p2Tapped = true;
                     p2Time = tapDuration;
                     p2Avatar.classList.add('shoot');
-                    p2Detail.textContent = `反応時間: ${p2Time.toFixed(3)} s`;
+                    p2Detail.textContent = `タイム: ${p2Time.toFixed(3)} 秒`;
                     p2Status.textContent = '';
                 }
 
+                if ((p1Tapped && !p2Tapped) || (!p1Tapped && p2Tapped)) {
+                    if (!firstTapTimer) {
+                        const firstPlayer = p1Tapped ? 1 : 2;
+                        firstTapTimer = setTimeout(() => {
+                            if (gameState === 'READY') {
+                                finalizeRoundByTimeout(firstPlayer);
+                            }
+                        }, 2000);
+                    }
+                }
+
                 if (p1Tapped && p2Tapped) {
+                    if (firstTapTimer) {
+                        clearTimeout(firstTapTimer);
+                        firstTapTimer = null;
+                    }
                     const delayWeight = 600; 
                     setTimeout(finalizeRound, delayWeight);
                 }
             }
         }
 
+        function finalizeRoundByTimeout(firstPlayer) {
+            if (gameState === 'FINISHED') return;
+            gameState = 'FINISHED';
+
+            p1Avatar.classList.remove('waiting-anim');
+            p2Avatar.classList.remove('waiting-anim');
+
+            if (firstPlayer === 1) {
+                p2Tapped = true;
+                p2Avatar.classList.add('dead');
+                p1Wins++;
+                p1Detail.textContent = `タイム: ${p1Time.toFixed(3)} 秒 (🥭+1)`;
+                p2Detail.textContent = '残念!';
+            } else {
+                p1Tapped = true;
+                p1Avatar.classList.add('dead');
+                p2Wins++;
+                p2Detail.textContent = `タイム: ${p2Time.toFixed(3)} 秒 (🥭+1)`;
+                p1Detail.textContent = '残念!';
+            }
+
+            updateScoreIcons();
+            playVictorySound();
+            checkMatchEnd();
+        }
+
         function finalizeRound() {
             if (gameState === 'FINISHED') return;
             gameState = 'FINISHED';
+
+            if (firstTapTimer) {
+                clearTimeout(firstTapTimer);
+                firstTapTimer = null;
+            }
 
             p1Avatar.classList.remove('waiting-anim');
             p2Avatar.classList.remove('waiting-anim');
@@ -1175,6 +1234,8 @@
                 p2Status.textContent = '';
                 p2Avatar.classList.add('dead');
                 p1Wins++;
+                p1Detail.textContent = `タイム: ${p1Time.toFixed(3)} 秒 (🥭+1)`;
+                p2Detail.textContent = `タイム: ${p2Time.toFixed(3)} 秒`;
                 updateScoreIcons();
                 playVictorySound();
             } else if (p2Time < p1Time) {
@@ -1182,11 +1243,15 @@
                 p1Status.textContent = '';
                 p1Avatar.classList.add('dead');
                 p2Wins++;
+                p2Detail.textContent = `タイム: ${p2Time.toFixed(3)} 秒 (🥭+1)`;
+                p1Detail.textContent = `タイム: ${p1Time.toFixed(3)} 秒`;
                 updateScoreIcons();
                 playVictorySound();
             } else {
                 p1Status.textContent = '';
                 p2Status.textContent = '';
+                p1Detail.textContent = `タイム: ${p1Time.toFixed(3)} 秒`;
+                p2Detail.textContent = `タイム: ${p2Time.toFixed(3)} 秒`;
             }
 
             checkMatchEnd();
@@ -1224,7 +1289,7 @@
                 p1Avatar.classList.remove('waiting-anim');
                 p2Avatar.classList.remove('waiting-anim');
 
-                p1Status.textContent = 'ネクスト';
+                p1Status.textContent = 'やったね';
                 p2Status.textContent = '';
                 playVictorySound();
                 
@@ -1245,8 +1310,8 @@
                 p2Ready = false;
                 p1Btn.disabled = false;
                 p2Btn.disabled = false;
-                p1Btn.textContent = '次の勝負へ';
-                p2Btn.textContent = '次の勝負へ';
+                p1Btn.textContent = '次へ';
+                p2Btn.textContent = '次へ';
                 p1Btn.classList.remove('ready-state');
                 p2Btn.classList.remove('ready-state');
             }

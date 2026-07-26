@@ -42,8 +42,8 @@
         }
         .game-header {
             border-top: none;
-            justify-content: flex-end; /* 右側に配置 */
-            transform: rotate(180deg); /* 180度回転 */
+            justify-content: flex-end;
+            transform: rotate(180deg);
         }
         .game-footer {
             border-bottom: none;
@@ -767,7 +767,6 @@
             } catch(e) {}
         }
 
-        // ドロー専用のサウンド（ブザー音風・不穏な和音など）
         function playDrawSound() {
             initAudio();
             try {
@@ -854,6 +853,7 @@
         let p2Time = null;
         let currentVegetableType = '';
         let firstTapTimer = null;
+        let noTapTimeoutTimer = null;
 
         const p1Status = document.getElementById('p1-status');
         const p2Status = document.getElementById('p2-status');
@@ -907,6 +907,10 @@
             if (firstTapTimer) {
                 clearTimeout(firstTapTimer);
                 firstTapTimer = null;
+            }
+            if (noTapTimeoutTimer) {
+                clearTimeout(noTapTimeoutTimer);
+                noTapTimeoutTimer = null;
             }
         }
 
@@ -1086,6 +1090,12 @@
             gameState = 'READY';
             setCenterObject('mango');
             startTime = performance.now();
+
+            noTapTimeoutTimer = setTimeout(() => {
+                if (gameState === 'READY' && !p1Tapped && !p2Tapped) {
+                    finalizeRoundNoTap();
+                }
+            }, 2000);
         }
 
         function handleTap(playerNum) {
@@ -1165,6 +1175,11 @@
                 }
 
             } else if (gameState === 'READY') {
+                if (noTapTimeoutTimer) {
+                    clearTimeout(noTapTimeoutTimer);
+                    noTapTimeoutTimer = null;
+                }
+
                 p1Avatar.classList.remove('waiting-anim');
                 p2Avatar.classList.remove('waiting-anim');
 
@@ -1211,6 +1226,27 @@
             }
         }
 
+        function finalizeRoundNoTap() {
+            if (gameState === 'FINISHED') return;
+            gameState = 'FINISHED';
+
+            clearAllTimeouts();
+
+            p1Avatar.classList.remove('waiting-anim');
+            p2Avatar.classList.remove('waiting-anim');
+
+            p1Avatar.classList.add('dead');
+            p2Avatar.classList.add('dead');
+
+            p1Status.textContent = 'ドロー';
+            p2Status.textContent = 'ドロー';
+            p1Detail.textContent = '時間切れ';
+            p2Detail.textContent = '時間切れ';
+
+            playDrawSound();
+            checkMatchEnd();
+        }
+
         function finalizeRoundByTimeout(firstPlayer) {
             if (gameState === 'FINISHED') return;
             gameState = 'FINISHED';
@@ -1249,8 +1285,6 @@
             p1Avatar.classList.remove('waiting-anim');
             p2Avatar.classList.remove('waiting-anim');
 
-            // タイムが同じ、またはミリ秒単位で完全に一致した場合（あるいは誤差がごくわずかな場合）の判定
-            // ※ここでは厳密に数値が同じ、またはMath.absの差がごくわずかな場合をドローとする拡張も可能ですが、正確に一致判定にするため `p1Time === p2Time` としています。
             if (p1Time < p2Time) {
                 p1Status.textContent = '';
                 p2Status.textContent = '';
@@ -1270,7 +1304,6 @@
                 updateScoreIcons();
                 playVictorySound();
             } else {
-                // 【ドロー演出の追加】
                 p1Status.textContent = 'ドロー！';
                 p2Status.textContent = 'ドロー！';
                 p1Detail.textContent = `タイム: ${p1Time.toFixed(3)} 秒`;

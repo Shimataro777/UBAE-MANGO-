@@ -767,6 +767,30 @@
             } catch(e) {}
         }
 
+        // ドロー専用のサウンド（ブザー音風・不穏な和音など）
+        function playDrawSound() {
+            initAudio();
+            try {
+                const notes = [350, 350];
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    const startTime = audioCtx.currentTime + idx * 0.15;
+                    osc.frequency.setValueAtTime(freq, startTime);
+
+                    gain.gain.setValueAtTime(0.12, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.12);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(startTime);
+                    osc.stop(startTime + 0.15);
+                });
+            } catch(e) {}
+        }
+
         function getVegetableSvg(type) {
             switch(type) {
                 case 'mango':
@@ -1009,7 +1033,6 @@
             runFeintLoop(feintCount);
         }
 
-        // インターバルを 0.5秒〜2.0秒 (500ms, 1000ms, 1500ms, 2000ms) の均等な確率に変更
         function getRandomInterval() {
             const intervals = [500, 1000, 1500, 2000];
             return intervals[Math.floor(Math.random() * intervals.length)];
@@ -1029,14 +1052,12 @@
 
                     setCenterObject(selectedFeintVeg);
 
-                    // フェイントの表示維持時間（0.5秒〜1.0秒）
                     const hideTime = Math.random() * 500 + 500;
                     const hideTimerId = setTimeout(() => {
                         if (gameState !== 'WAITING') return;
                         
                         clearCenterObject();
 
-                        // 消えたあとの空白インターバル（0.5〜2.0秒）
                         const pauseTime = getRandomInterval();
                         const pauseTimerId = setTimeout(() => {
                             if (gameState !== 'WAITING') return;
@@ -1048,7 +1069,6 @@
                     timeoutIds.push(hideTimerId);
 
                 } else {
-                    // フェイント終了後、最後にマンゴーが出るまでのインターバル（0.5〜2.0秒）
                     const realTime = getRandomInterval();
                     const realTimerId = setTimeout(() => {
                         triggerMango();
@@ -1229,6 +1249,8 @@
             p1Avatar.classList.remove('waiting-anim');
             p2Avatar.classList.remove('waiting-anim');
 
+            // タイムが同じ、またはミリ秒単位で完全に一致した場合（あるいは誤差がごくわずかな場合）の判定
+            // ※ここでは厳密に数値が同じ、またはMath.absの差がごくわずかな場合をドローとする拡張も可能ですが、正確に一致判定にするため `p1Time === p2Time` としています。
             if (p1Time < p2Time) {
                 p1Status.textContent = '';
                 p2Status.textContent = '';
@@ -1248,10 +1270,12 @@
                 updateScoreIcons();
                 playVictorySound();
             } else {
-                p1Status.textContent = '';
-                p2Status.textContent = '';
+                // 【ドロー演出の追加】
+                p1Status.textContent = 'ドロー！';
+                p2Status.textContent = 'ドロー！';
                 p1Detail.textContent = `タイム: ${p1Time.toFixed(3)} 秒`;
                 p2Detail.textContent = `タイム: ${p2Time.toFixed(3)} 秒`;
+                playDrawSound();
             }
 
             checkMatchEnd();
